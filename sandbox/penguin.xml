@@ -1,0 +1,27 @@
+<Penguin>
+    <Pet />
+    <Pet>
+        <Name>asdf</Name>
+        <Toy />
+        <Toy>
+            <Name>qwer</Name>
+            <Color>red</Color>
+            <Color>blue</Color>
+            <Gadget>
+                <Knob>asdf</Knob>
+                <Knob>asdf</Knob>
+            </Gadget>
+        </Toy>
+    </Pet>
+    <SomeField1 />
+    <SomeField2 />
+    <SomeField3 />
+    <Toy />
+    <Toy>
+        <Name>qwer</Name>
+        <Piece>piece1</Piece>
+        <Piece>piece2 and things and multiple lines</Piece>
+        <Thing2 value="asdf" />
+        <Thing2 value="asdf" />
+    </Toy>
+</Penguin>
