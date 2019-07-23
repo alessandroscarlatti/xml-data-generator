@@ -1,13 +1,11 @@
 package com.scarlatti.mappingdemo;
 
 import groovy.util.Node;
-import groovy.util.NodeList;
 import groovy.util.XmlParser;
 import groovy.xml.XmlUtil;
 import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -86,5 +84,13 @@ public class NodeUtilsTest {
         });
 
         System.out.println(XmlUtil.serialize(xml));
+    }
+
+    @Test
+    public void testBuildFactoryNode() throws Exception {
+        Node xml = new XmlParser().parse(Paths.get("sandbox/penguin.xml").toFile());
+        NodeFactory nodeFactory = NodeFactory.fromExample(xml);
+
+        System.out.println(nodeFactory);
     }
 }

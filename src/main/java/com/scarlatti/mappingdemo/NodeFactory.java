@@ -5,9 +5,7 @@ import groovy.util.NodeList;
 
 import java.util.*;
 
-import static com.scarlatti.mappingdemo.NodeUtils.childNodes;
-import static com.scarlatti.mappingdemo.NodeUtils.getPlurals;
-import static com.scarlatti.mappingdemo.NodeUtils.isValueNode;
+import static com.scarlatti.mappingdemo.NodeUtils.*;
 
 /**
  * @author Alessandro Scarlatti
@@ -29,6 +27,37 @@ public class NodeFactory {
         buildFactoryNodeRecursive((Node) example.clone(), nodeFactory.factoryNodes);
 
         return nodeFactory;
+    }
+
+    public static NodeFactory fromExample2(Node example) {
+        NodeFactory nodeFactory = new NodeFactory();
+
+        nodeFactory.factoryNodes = new LinkedHashMap<>();
+        nodeFactory.plurals = getPlurals(example);
+        buildFactoryNode((Node) example.clone(), nodeFactory.factoryNodes);
+
+        return nodeFactory;
+    }
+
+    private static void buildFactoryNode(Node node, Map<String, Node> factoryMap) {
+        walkNode(node, new NodeUtils.NodeWalkerAdapter() {
+            @Override
+            public void walkBeanNode(Node node) {
+                visitNodeSets(node, nodes -> {
+                    if (nodes.size() > 1) {
+                        // iterate all but last instance
+                        for (int i = 0; i < nodes.size() - 1; i++) {
+                            removeNode(nodes.get(i));
+                        }
+                    }
+
+                    Node factoryNode = last(nodes);
+                    factoryMap.put(Ref2.fromNode(factoryNode).getRefString(), factoryNode);
+                });
+
+                super.walkBeanNode(node);
+            }
+        });
     }
 
     private static void buildFactoryNodeRecursive(Node current, Map<String, Node> factoryMap) {

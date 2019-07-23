@@ -1,5 +1,6 @@
 package com.scarlatti.mappingdemo;
 
+import com.sun.org.apache.xpath.internal.NodeSet;
 import groovy.util.Node;
 import groovy.util.NodeList;
 
@@ -133,9 +134,31 @@ public class NodeUtils {
         }
     }
 
+    public static void visitNodeSets(Node node, NodeSetVisitor visitor) {
+        for (String childName : getChildrenNames(node)) {
+            List<Node> children = getChildren(node, childName);
+            visitor.visitNodeSet(children);
+        }
+    }
+
+    public static <T> T last(List<T> list) {
+        return list.get(list.size() - 1);
+    }
+
     public interface NodeWalker {
         void walkValueNode(Node node);
         void walkBeanNode(Node node);
+    }
+
+    public interface NodeSetVisitor {
+        void visitNodeSet(List<Node> nodes);
+    }
+
+    public static class NodeSetVisitorAdapter implements NodeSetVisitor {
+        @Override
+        public void visitNodeSet(List<Node> nodes) {
+            // nothing to do here
+        }
     }
 
     public static class NodeWalkerAdapter implements NodeWalker {
@@ -218,8 +241,8 @@ public class NodeUtils {
             public void walkBeanNode(Node node) {
                 if (plurals.contains(Ref2.fromNode(node)))
                     removeNode(node);
-
-                super.walkBeanNode(node);
+                else
+                    super.walkBeanNode(node);
             }
         });
     }
