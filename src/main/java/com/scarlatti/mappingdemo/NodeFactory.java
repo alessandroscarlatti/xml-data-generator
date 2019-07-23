@@ -41,11 +41,11 @@ public class NodeFactory {
                         }
                     }
 
-                    Node factoryNode = last(nodes);
-                    factoryMap.put(Ref2.fromNode(factoryNode).getRefString(), factoryNode);
+                    Node factoryNode = cloneNode(last(nodes));
+                    factoryMap.put(Ref2.fromNode(last(nodes)).getRefString(), factoryNode);
                 });
 
-                if (!factoryMap.containsKey(node.name())) {
+                if (!factoryMap.containsKey(Ref2.fromNode(node).getRefString())) {
                     Node factoryNode = cloneNode(node);
                     factoryMap.put(Ref2.fromNode(node).getRefString(), factoryNode);
                 }
@@ -56,6 +56,12 @@ public class NodeFactory {
     }
 
     public Node get(String path) {
-        return (Node) factoryNodes.get(path).clone();
+        Node node = cloneNode(factoryNodes.get(path));
+        removePluralsFromNode(node);
+        return node;
+    }
+
+    public Node getSchemaNode(String path) {
+        return cloneNode(factoryNodes.get(path));
     }
 }

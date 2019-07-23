@@ -28,7 +28,7 @@ public class BuildXDirective implements Directive {
             // so now add them!
             for (int i = 0; i < count; i++) {
                 Node newNode = nodeFactory.get(buildXRef.getRefString());
-                NodeUtils.addNodeInSlot(newNode, node, nodeFactory.get(parentRef.getRefString()));
+                NodeUtils.addNodeInSlot(newNode, node, nodeFactory.getSchemaNode(parentRef.getRefString()));
             }
 
             return true;
