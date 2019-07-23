@@ -47,6 +47,13 @@ public class Ref2 {
         return Objects.hash(tokens);
     }
 
+    public Ref2 parent() {
+        if (tokens.size() == 0 || tokens.size() == 1)
+            return null;
+
+        return new Ref2(tokens.subList(0, tokens.size() - 1));
+    }
+
     public static Ref2 fromString(String xpath) {
         if (xpath.startsWith("/"))
             xpath = xpath.substring(1, xpath.length());

@@ -12,7 +12,23 @@ import static com.scarlatti.mappingdemo.NodeUtils.nodes;
  */
 public class NodeBuilder {
 
-    public static void applyDirectiveRecursive(Node base, NodeFactory factory, Directive directive, int tokenIndex) {
+    public static void applyDirective(Node node, Directive directive) {
+        NodeUtils.walkNode(node, new NodeUtils.NodeWalkerAdapter() {
+
+            @Override
+            public void walkValueNode(Node node) {
+                directive.applyTo(node);
+            }
+
+            @Override
+            public void walkBeanNode(Node node) {
+                directive.applyTo(node);
+                super.walkBeanNode(node);
+            }
+        });
+    }
+
+    public static void applyDirectiveRecursive(Node base, NodeFactory factory, Directive2 directive, int tokenIndex) {
         // traverse the node to the next token in the ref.
         // if it does not exist in the base node, get it from the factory.
         String currentKey = directive.ref.getTokens().get(tokenIndex);

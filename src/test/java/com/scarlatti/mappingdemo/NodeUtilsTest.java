@@ -12,6 +12,7 @@ import java.util.Set;
 
 import static com.scarlatti.mappingdemo.NodeUtils.getChildren;
 import static com.scarlatti.mappingdemo.NodeUtils.removeNode;
+import static groovy.xml.XmlUtil.serialize;
 
 /**
  * @author Alessandro Scarlatti
@@ -83,7 +84,7 @@ public class NodeUtilsTest {
             }
         });
 
-        System.out.println(XmlUtil.serialize(xml));
+        System.out.println(serialize(xml));
     }
 
     @Test
@@ -92,5 +93,17 @@ public class NodeUtilsTest {
         NodeFactory nodeFactory = NodeFactory.fromExample(xml);
 
         System.out.println(nodeFactory);
+    }
+
+    @Test
+    public void applyDirective() throws Exception {
+        Node xml = new XmlParser().parse(Paths.get("sandbox/penguin.xml").toFile());
+        NodeFactory nodeFactory = NodeFactory.fromExample(xml);
+
+        Directive directive = new BuildXDirective(Ref2.fromString("/Penguin/Toy"), 3, nodeFactory);
+
+        NodeBuilder.applyDirective(xml, directive);
+
+        System.out.println(serialize(xml));
     }
 }

@@ -47,11 +47,11 @@ public class XmlParsingDemo {
         Node xml = new XmlParser().parse(Paths.get("sandbox/penguin.xml").toFile());
         NodeFactory nodeFactory = NodeFactory.fromExample(xml);
 
-        Directive directive1 = new Directive();
+        Directive2 directive1 = new Directive2();
         directive1.ref = Ref2.fromString("/Penguin/Pet/Toy");
         directive1.count = 5;
 
-        Directive directive2 = new Directive();
+        Directive2 directive2 = new Directive2();
         directive2.ref = Ref2.fromString("/Penguin/Toy/Piece");
         directive2.count = 5;
 
@@ -72,7 +72,7 @@ public class XmlParsingDemo {
         Node xml = new XmlParser().parse(Paths.get("sandbox/penguin.xml").toFile());
         NodeFactory nodeFactory = NodeFactory.fromExample(xml);
 
-        Directive directive1 = new Directive();
+        Directive2 directive1 = new Directive2();
         directive1.ref = Ref2.fromString("/Penguin/Toy");
         directive1.count = 5;
 
@@ -96,9 +96,9 @@ public class XmlParsingDemo {
         // use a factory object instead of a map...
         // make that a setting on the factory...
         // to be able to know about plurals and return a Node with no nodes in the plurals list.
-        // applyDirectiveRecursive(caseXml, nodeFactory, new Directive(Ref2.fromString("/Penguin/Toy"), 4), 1);
+        // applyDirectiveRecursive(caseXml, nodeFactory, new Directive2(Ref2.fromString("/Penguin/Toy"), 4), 1);
         for (Ref2 ref : plurals) {
-            Directive directive = new Directive(ref, 2);
+            Directive2 directive = new Directive2(ref, 2);
             applyDirectiveRecursive(caseXml, nodeFactory, directive, 1);
         }
 

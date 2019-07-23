@@ -1,14 +1,12 @@
 package com.scarlatti.mappingdemo;
 
-public class Directive {
-    public Ref2 ref;
-    public int count;
+import groovy.util.Node;
 
-    public Directive() {
-    }
+/**
+ * @author Alessandro Scarlatti
+ * @since Monday, 7/22/2019
+ */
+public interface Directive {
 
-    public Directive(Ref2 ref, int count) {
-        this.ref = ref;
-        this.count = count;
-    }
+    boolean applyTo(Node node);
 }
