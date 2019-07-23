@@ -7,7 +7,7 @@ import java.util.*;
 
 import static com.scarlatti.mappingdemo.NodeUtils.childNodes;
 import static com.scarlatti.mappingdemo.NodeUtils.getPlurals;
-import static com.scarlatti.mappingdemo.NodeUtils.isTextNode;
+import static com.scarlatti.mappingdemo.NodeUtils.isValueNode;
 
 /**
  * @author Alessandro Scarlatti
@@ -26,12 +26,12 @@ public class NodeFactory {
 
         nodeFactory.factoryNodes = new LinkedHashMap<>();
         nodeFactory.plurals = getPlurals(example);
-        buildFactoryNode((Node) example.clone(), nodeFactory.factoryNodes);
+        buildFactoryNodeRecursive((Node) example.clone(), nodeFactory.factoryNodes);
 
         return nodeFactory;
     }
 
-    private static void buildFactoryNode(Node current, Map<String, Node> factoryMap) {
+    private static void buildFactoryNodeRecursive(Node current, Map<String, Node> factoryMap) {
         Map<String, Node> keep = new LinkedHashMap<>();
         for (Node child : childNodes(current)) {
 
@@ -56,7 +56,7 @@ public class NodeFactory {
         factoryMap.put(Ref2.fromNode(current).getRefString(), current);
 
         // now delete all the children and add back only the ones we want to keep
-        if (current.value() instanceof NodeList && !isTextNode((NodeList) current.value())) {
+        if (current.value() instanceof NodeList && !isValueNode((NodeList) current.value())) {
 
             current.setValue("");
             for (Node node : keep.values()) {
@@ -65,7 +65,7 @@ public class NodeFactory {
 
             // now take each child and do the same process for each.
             for (Node child : childNodes(current)) {
-                buildFactoryNode(child, factoryMap);
+                buildFactoryNodeRecursive(child, factoryMap);
             }
         }
     }

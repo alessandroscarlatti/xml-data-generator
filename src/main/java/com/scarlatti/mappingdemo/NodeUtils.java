@@ -37,7 +37,16 @@ public class NodeUtils {
         }
     }
 
-    public static boolean isTextNode(NodeList nodeList) {
+    public static boolean isValueNode(Node node) {
+        for (Object objChild : node.children()) {
+            if (objChild instanceof Node) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isValueNode(NodeList nodeList) {
         for (Object objChild : nodeList) {
             if (objChild instanceof Node) {
                 return false;
@@ -114,5 +123,104 @@ public class NodeUtils {
                 current.remove(node);
             }
         }
+    }
+
+    public static void walkNode(Node node, NodeWalker walker) {
+        if (isValueNode(node)) {
+            walker.walkValueNode(node);
+        } else {
+            walker.walkBeanNode(node);
+        }
+    }
+
+    public interface NodeWalker {
+        void walkValueNode(Node node);
+        void walkBeanNode(Node node);
+    }
+
+    public static class NodeWalkerAdapter implements NodeWalker {
+        @Override
+        public void walkValueNode(Node node) {
+            // nothing to do here
+        }
+
+        @Override
+        public void walkBeanNode(Node node) {
+            for (Node child : getChildren(node)) {
+                walkNode(child, this);
+            }
+        }
+    }
+
+    public static List<Node> getChildren(Node node) {
+        List<Node> nodes = new ArrayList<>();
+        for (Object objNode : node.children()) {
+            if (objNode instanceof Node) {
+                nodes.add((Node) objNode);
+            }
+        }
+        return nodes;
+    }
+
+    public static List<Node> getChildren(Node node, String name) {
+        List<Node> nodes = new ArrayList<>();
+        for (Object objNode : (NodeList) node.get(name)) {
+            if (objNode instanceof Node) {
+                nodes.add((Node) objNode);
+            }
+        }
+        return nodes;
+    }
+
+    public static List<String> getChildrenNames(Node node) {
+        List<String> names = new ArrayList<>();
+        List<Node> nodes = getChildren(node);
+        for (Node child : nodes) {
+            names.add((String) child.name());
+        }
+        return names;
+    }
+
+    public static void removeNode(Node node) {
+        if (node.parent() != null)
+            node.parent().remove(node);
+    }
+
+    public static List<Ref2> getPluralsFromNode(Node node) {
+        Set<Ref2> plurals = new LinkedHashSet<>();
+        NodeUtils.walkNode(node, new NodeUtils.NodeWalkerAdapter() {
+            @Override
+            public void walkBeanNode(Node node) {
+                List<String> childrenNames = NodeUtils.getChildrenNames(node);
+                for (String childName : childrenNames) {
+                    List<Node> children = getChildren(node, childName);
+                    if (children.size() > 1)
+                        plurals.add(Ref2.fromNode(children.get(0)));
+                }
+
+                super.walkBeanNode(node);
+            }
+        });
+        return new ArrayList<>(plurals);
+    }
+
+    public static void removePluralsFromNode(Node node) {
+        List<Ref2> plurals = NodeUtils.getPluralsFromNode(node);
+
+        NodeUtils.walkNode(node, new NodeUtils.NodeWalkerAdapter() {
+            @Override
+            public void walkValueNode(Node node) {
+                if (plurals.contains(Ref2.fromNode(node)))
+                    removeNode(node);
+            }
+
+            @Override
+            public void walkBeanNode(Node node) {
+                if (plurals.contains(Ref2.fromNode(node)))
+                    removeNode(node);
+
+                super.walkBeanNode(node);
+            }
+        });
     }
 }

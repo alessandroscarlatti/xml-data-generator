@@ -10,9 +10,9 @@ import static com.scarlatti.mappingdemo.NodeUtils.nodes;
  * @author Alessandro Scarlatti
  * @since Monday, 7/22/2019
  */
-public class CaseBuilder {
+public class NodeBuilder {
 
-    public static void buildCase(Node base, NodeFactory factory, Directive directive, int tokenIndex) {
+    public static void applyDirectiveRecursive(Node base, NodeFactory factory, Directive directive, int tokenIndex) {
         // traverse the node to the next token in the ref.
         // if it does not exist in the base node, get it from the factory.
         String currentKey = directive.ref.getTokens().get(tokenIndex);
@@ -40,10 +40,10 @@ public class CaseBuilder {
                 String childRef = new Ref2(directive.ref.getTokens().subList(0, tokenIndex + 1)).getRefString();
                 nextBaseNode = (Node) factory.get(childRef).clone();
                 addNodeInSlot(nextBaseNode, base, factory.get(Ref2.fromNode(base).getRefString()));
-                buildCase(nextBaseNode, factory, directive, tokenIndex + 1);
+                applyDirectiveRecursive(nextBaseNode, factory, directive, tokenIndex + 1);
             } else {
                 for (Node node : nodes(nodeList)) {
-                    buildCase(node, factory, directive, tokenIndex + 1);
+                    applyDirectiveRecursive(node, factory, directive, tokenIndex + 1);
                 }
             }
         }

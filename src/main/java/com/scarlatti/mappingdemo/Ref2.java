@@ -64,15 +64,6 @@ public class Ref2 {
         return new Ref2(tokens);
     }
 
-//    public Node resolveAll(Node base) {
-//        if (tokens.size() == 0)
-//            return base;
-//        for (int i = 1; i < tokens.size(); i++) {
-//            String token = tokens.get(i);
-//            List<Node> nodes = childNodes(base);
-//        }
-//    }
-
     public String getRefString() {
         return "/" + String.join("/", tokens);
     }

@@ -8,11 +8,10 @@ import org.junit.Test;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static com.scarlatti.mappingdemo.CaseBuilder.buildCase;
+import static com.scarlatti.mappingdemo.NodeBuilder.applyDirectiveRecursive;
 import static com.scarlatti.mappingdemo.NodeUtils.getPlurals;
 import static com.scarlatti.mappingdemo.NodeUtils.removePlurals;
 import static java.nio.file.Files.readAllBytes;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -59,12 +58,27 @@ public class XmlParsingDemo {
         Node case1 = xml;
         removePlurals(case1);
 
-        buildCase(case1, nodeFactory, directive1, 1);
+        applyDirectiveRecursive(case1, nodeFactory, directive1, 1);
 
         System.out.println(XmlUtil.serialize(case1));
 
-        buildCase(case1, nodeFactory, directive2, 1);
+        applyDirectiveRecursive(case1, nodeFactory, directive2, 1);
 
+        System.out.println(XmlUtil.serialize(case1));
+    }
+
+    @Test
+    public void testBuildCaseWithBadDirective() throws Exception {
+        Node xml = new XmlParser().parse(Paths.get("sandbox/penguin.xml").toFile());
+        NodeFactory nodeFactory = NodeFactory.fromExample(xml);
+
+        Directive directive1 = new Directive();
+        directive1.ref = Ref2.fromString("/Penguin/Toy");
+        directive1.count = 5;
+
+        Node case1 = nodeFactory.get("/Penguin/Toy");
+        removePlurals(case1);
+        applyDirectiveRecursive(case1, nodeFactory, directive1, 1);
         System.out.println(XmlUtil.serialize(case1));
     }
 
@@ -82,10 +96,10 @@ public class XmlParsingDemo {
         // use a factory object instead of a map...
         // make that a setting on the factory...
         // to be able to know about plurals and return a Node with no nodes in the plurals list.
-        // buildCase(caseXml, nodeFactory, new Directive(Ref2.fromString("/Penguin/Toy"), 4), 1);
+        // applyDirectiveRecursive(caseXml, nodeFactory, new Directive(Ref2.fromString("/Penguin/Toy"), 4), 1);
         for (Ref2 ref : plurals) {
             Directive directive = new Directive(ref, 2);
-            buildCase(caseXml, nodeFactory, directive, 1);
+            applyDirectiveRecursive(caseXml, nodeFactory, directive, 1);
         }
 
         System.out.println(XmlUtil.serialize(caseXml));
