@@ -1,6 +1,5 @@
 package com.scarlatti.mappingdemo;
 
-import com.sun.org.apache.xpath.internal.NodeSet;
 import groovy.util.Node;
 import groovy.util.NodeList;
 
@@ -245,5 +244,33 @@ public class NodeUtils {
                     super.walkBeanNode(node);
             }
         });
+    }
+
+    public static Node cloneNode(Node node) {
+        return cloneNodeRecursive(node, null);
+    }
+
+    public static Node cloneNodeRecursive(Node node, Node parent) {
+        Object newValue = node.value();
+        Node newNode = new Node(parent, node.name(), new HashMap(node.attributes()));
+        if (node.value() instanceof NodeList) {
+            newValue = cloneNodeList((NodeList) node.value(), newNode);
+        }
+        newNode.setValue(newValue);
+        return newNode;
+    }
+
+    public static NodeList cloneNodeList(NodeList nodeList, Node parent) {
+        NodeList result = new NodeList(nodeList.size());
+        for (int i = 0; i < nodeList.size(); i++) {
+            Object next = nodeList.get(i);
+            if (next instanceof Node) {
+                Node n = (Node) next;
+                result.add(cloneNodeRecursive(n, parent));
+            } else {
+                result.add(next);
+            }
+        }
+        return result;
     }
 }

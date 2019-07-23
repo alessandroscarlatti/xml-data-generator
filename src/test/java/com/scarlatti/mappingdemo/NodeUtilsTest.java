@@ -2,7 +2,6 @@ package com.scarlatti.mappingdemo;
 
 import groovy.util.Node;
 import groovy.util.XmlParser;
-import groovy.xml.XmlUtil;
 import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
@@ -10,8 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.scarlatti.mappingdemo.NodeUtils.getChildren;
-import static com.scarlatti.mappingdemo.NodeUtils.removeNode;
+import static com.scarlatti.mappingdemo.NodeUtils.*;
 import static groovy.xml.XmlUtil.serialize;
 
 /**
@@ -97,13 +95,29 @@ public class NodeUtilsTest {
 
     @Test
     public void applyDirective() throws Exception {
-        Node xml = new XmlParser().parse(Paths.get("sandbox/penguin.xml").toFile());
-        NodeFactory nodeFactory = NodeFactory.fromExample(xml);
+        Node example = new XmlParser().parse(Paths.get("sandbox/penguin.xml").toFile());
+        NodeFactory nodeFactory = NodeFactory.fromExample(example);
 
-        Directive directive = new BuildXDirective(Ref2.fromString("/Penguin/Toy"), 3, nodeFactory);
+        Directive directive1 = new BuildXDirective(Ref2.fromString("/Penguin/Toy"), 3, nodeFactory);
+        Directive directive2 = new BuildXDirective(Ref2.fromString("/Penguin/Pet"), 3, nodeFactory);
+        Directive directive3 = new BuildXDirective(Ref2.fromString("/Penguin/Pet/Toy"), 5, nodeFactory);
 
-        NodeBuilder.applyDirective(xml, directive);
+        Node base = cloneNode(example);
+        removePluralsFromNode(base);
 
-        System.out.println(serialize(xml));
+        NodeBuilder.applyDirective(base, directive1);
+        NodeBuilder.applyDirective(base, directive2);
+        NodeBuilder.applyDirective(base, directive3);
+
+        System.out.println(serialize(base));
     }
+
+    @Test
+    public void testClone() throws Exception {
+        Node xml = new XmlParser().parse(Paths.get("sandbox/penguin.xml").toFile());
+        Node clone = cloneNode(xml);
+
+        System.out.println(clone);
+    }
+
 }

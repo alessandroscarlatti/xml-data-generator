@@ -24,7 +24,7 @@ public class NodeFactory {
 
         nodeFactory.factoryNodes = new LinkedHashMap<>();
         nodeFactory.plurals = getPlurals(example);
-        buildFactoryNode((Node) example.clone(), nodeFactory.factoryNodes);
+        buildFactoryNode(cloneNode(example), nodeFactory.factoryNodes);
 
         return nodeFactory;
     }
@@ -44,6 +44,11 @@ public class NodeFactory {
                     Node factoryNode = last(nodes);
                     factoryMap.put(Ref2.fromNode(factoryNode).getRefString(), factoryNode);
                 });
+
+                if (!factoryMap.containsKey(node.name())) {
+                    Node factoryNode = cloneNode(node);
+                    factoryMap.put(Ref2.fromNode(node).getRefString(), factoryNode);
+                }
 
                 super.walkBeanNode(node);
             }
