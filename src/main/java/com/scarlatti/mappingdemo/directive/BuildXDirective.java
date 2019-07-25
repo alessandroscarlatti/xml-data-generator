@@ -1,5 +1,8 @@
-package com.scarlatti.mappingdemo;
+package com.scarlatti.mappingdemo.directive;
 
+import com.scarlatti.mappingdemo.factory.NodeFactory;
+import com.scarlatti.mappingdemo.util.NodeUtils;
+import com.scarlatti.mappingdemo.util.Ref;
 import groovy.util.Node;
 
 /**
@@ -8,12 +11,12 @@ import groovy.util.Node;
  */
 public class BuildXDirective implements Directive {
 
-    private Ref2 buildXRef;
-    private Ref2 parentRef;
+    private Ref buildXRef;
+    private Ref parentRef;
     private int count;
     private NodeFactory nodeFactory;
 
-    public BuildXDirective(Ref2 ref, int count, NodeFactory nodeFactory) {
+    public BuildXDirective(Ref ref, int count, NodeFactory nodeFactory) {
         this.buildXRef = ref;
         this.nodeFactory = nodeFactory;
         this.parentRef = buildXRef.parent();
@@ -22,13 +25,13 @@ public class BuildXDirective implements Directive {
 
     @Override
     public boolean applyTo(Node node) {
-        if (Ref2.fromNode(node).equals(parentRef)) {
+        if (Ref.fromNode(node).equals(parentRef)) {
             // ^^this node should contain the X nodes
 
             // so now add them!
             for (int i = 0; i < count; i++) {
-                Node newNode = nodeFactory.get(buildXRef.getRefString());
-                NodeUtils.addNodeInSlot(newNode, node, nodeFactory.getSchemaNode(parentRef.getRefString()));
+                Node newNode = nodeFactory.getFactoryNode(buildXRef.getRefString());
+                NodeUtils.insertNodeByExample(newNode, node, nodeFactory.getExampleNode(parentRef.getRefString()));
             }
 
             return true;

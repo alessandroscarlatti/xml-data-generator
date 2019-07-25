@@ -1,4 +1,4 @@
-package com.scarlatti.mappingdemo;
+package com.scarlatti.mappingdemo.util;
 
 import groovy.util.Node;
 
@@ -7,28 +7,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.scarlatti.mappingdemo.NodeUtils.childNodes;
 import static java.util.Arrays.asList;
 
-public class Ref2 {
+public class Ref {
     private List<String> tokens;
 
-    public Ref2(String token) {
+    public Ref(String token) {
         tokens = new ArrayList<>();
         tokens.add(token);
     }
 
-    public Ref2(List<String> tokens) {
+    public Ref(List<String> tokens) {
         this.tokens = tokens;
     }
 
-    public Ref2(Ref2 other) {
+    public Ref(Ref other) {
         this.tokens = new ArrayList<>(other.tokens);
     }
 
     @Override
     public String toString() {
-        return "Ref2{" +
+        return "Ref{" +
             "tokens=" + tokens +
             '}';
     }
@@ -37,8 +36,8 @@ public class Ref2 {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Ref2 ref2 = (Ref2) o;
-        return Objects.equals(tokens, ref2.tokens);
+        Ref ref = (Ref) o;
+        return Objects.equals(tokens, ref.tokens);
     }
 
     @Override
@@ -47,20 +46,20 @@ public class Ref2 {
         return Objects.hash(tokens);
     }
 
-    public Ref2 parent() {
+    public Ref parent() {
         if (tokens.size() == 0 || tokens.size() == 1)
             return null;
 
-        return new Ref2(tokens.subList(0, tokens.size() - 1));
+        return new Ref(tokens.subList(0, tokens.size() - 1));
     }
 
-    public static Ref2 fromString(String xpath) {
+    public static Ref fromString(String xpath) {
         if (xpath.startsWith("/"))
             xpath = xpath.substring(1, xpath.length());
-        return new Ref2(asList(xpath.split("/")));
+        return new Ref(asList(xpath.split("/")));
     }
 
-    public static Ref2 fromNode(Node node) {
+    public static Ref fromNode(Node node) {
         List<String> tokens = new ArrayList<>();
         tokens.add(0, (String) node.name());
         while (node.parent() != null) {
@@ -68,7 +67,7 @@ public class Ref2 {
             node = node.parent();
         }
 
-        return new Ref2(tokens);
+        return new Ref(tokens);
     }
 
     public String getRefString() {

@@ -1,19 +1,17 @@
-package com.scarlatti.mappingdemo;
+package com.scarlatti.mappingdemo.directive;
 
+import com.scarlatti.mappingdemo.util.NodeUtils;
+import com.scarlatti.mappingdemo.util.NodeWalkerAdapter;
 import groovy.util.Node;
-import groovy.util.NodeList;
-
-import static com.scarlatti.mappingdemo.NodeUtils.addNodeInSlot;
-import static com.scarlatti.mappingdemo.NodeUtils.nodes;
 
 /**
  * @author Alessandro Scarlatti
  * @since Monday, 7/22/2019
  */
-public class NodeBuilder {
+public final class DirectiveUtils {
 
     public static void applyDirective(Node node, Directive directive) {
-        NodeUtils.walkNode(node, new NodeUtils.NodeWalkerAdapter() {
+        NodeUtils.walkNode(node, new NodeWalkerAdapter() {
 
             @Override
             public void walkValueNode(Node node) {

@@ -1,11 +1,12 @@
-package com.scarlatti.mappingdemo;
+package com.scarlatti.mappingdemo.factory;
 
+import com.scarlatti.mappingdemo.util.NodeWalkerAdapter;
+import com.scarlatti.mappingdemo.util.Ref;
 import groovy.util.Node;
-import groovy.util.NodeList;
 
 import java.util.*;
 
-import static com.scarlatti.mappingdemo.NodeUtils.*;
+import static com.scarlatti.mappingdemo.util.NodeUtils.*;
 
 /**
  * @author Alessandro Scarlatti
@@ -14,7 +15,7 @@ import static com.scarlatti.mappingdemo.NodeUtils.*;
 public class NodeFactory {
 
     private Map<String, Node> factoryNodes = new LinkedHashMap<>();
-    private List<Ref2> plurals = new ArrayList<>();
+    private List<Ref> plurals = new ArrayList<>();
     private int defaultPluralCount = 0;
 
     private NodeFactory() {}
@@ -24,16 +25,16 @@ public class NodeFactory {
 
         nodeFactory.factoryNodes = new LinkedHashMap<>();
         nodeFactory.plurals = getPlurals(example);
-        buildFactoryNode(cloneNode(example), nodeFactory.factoryNodes);
+        buildFactoryNodes(cloneNode(example), nodeFactory.factoryNodes);
 
         return nodeFactory;
     }
 
-    private static void buildFactoryNode(Node node, Map<String, Node> factoryMap) {
-        walkNode(node, new NodeUtils.NodeWalkerAdapter() {
+    private static void buildFactoryNodes(Node node, Map<String, Node> factoryMap) {
+        walkNode(node, new NodeWalkerAdapter() {
             @Override
             public void walkBeanNode(Node node) {
-                visitNodeSets(node, nodes -> {
+                visitChildNodesGroupByName(node, nodes -> {
                     if (nodes.size() > 1) {
                         // only keep the last instance
                         for (int i = 0; i < nodes.size() - 1; i++) {
@@ -42,12 +43,12 @@ public class NodeFactory {
                     }
 
                     Node factoryNode = cloneNode(last(nodes));
-                    factoryMap.put(Ref2.fromNode(last(nodes)).getRefString(), factoryNode);
+                    factoryMap.put(Ref.fromNode(last(nodes)).getRefString(), factoryNode);
                 });
 
-                if (!factoryMap.containsKey(Ref2.fromNode(node).getRefString())) {
+                if (!factoryMap.containsKey(Ref.fromNode(node).getRefString())) {
                     Node factoryNode = cloneNode(node);
-                    factoryMap.put(Ref2.fromNode(node).getRefString(), factoryNode);
+                    factoryMap.put(Ref.fromNode(node).getRefString(), factoryNode);
                 }
 
                 super.walkBeanNode(node);
@@ -55,13 +56,14 @@ public class NodeFactory {
         });
     }
 
-    public Node get(String path) {
+    // Todo this factory method can apply a directive to produce a default repetition of plurals
+    public Node getFactoryNode(String path) {
         Node node = cloneNode(factoryNodes.get(path));
-        removePluralsFromNode(node);
+        removePlurals(node);
         return node;
     }
 
-    public Node getSchemaNode(String path) {
+    public Node getExampleNode(String path) {
         return cloneNode(factoryNodes.get(path));
     }
 }

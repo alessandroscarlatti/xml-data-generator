@@ -1,4 +1,4 @@
-package com.scarlatti.mappingdemo;
+package com.scarlatti.mappingdemo.directive;
 
 import groovy.util.Node;
 
