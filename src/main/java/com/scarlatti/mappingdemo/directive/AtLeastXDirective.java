@@ -76,7 +76,7 @@ public class AtLeastXDirective implements Directive, FactoryDependent {
                 // so now add them!
                 for (int i = 0; i < numToAdd; i++) {
                     try {
-                        Node newNode = nodeFactory.getFactoryNode(atLeastXRef);
+                        Node newNode = nodeFactory.getFactoryNode(atLeastXRef, i);
                         Ref thisRef = Ref.ref(node);
                         NodeUtils.insertNodeByExample(newNode, node, nodeFactory.getExampleNode(thisRef));
                     } catch (NodeNotFoundException e) {

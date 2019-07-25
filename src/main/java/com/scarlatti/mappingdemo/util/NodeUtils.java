@@ -50,7 +50,7 @@ public class NodeUtils {
      * @param node the node to inspect.
      * @return true if the given node represents a single text value only.
      */
-    private static boolean isValueNode(Node node) {
+    public static boolean isValueNode(Node node) {
         for (Object objChild : node.children()) {
             if (objChild instanceof Node) {
                 return false;

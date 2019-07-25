@@ -102,7 +102,8 @@ public class NodeFactory {
         // now apply any directives for this factory
         for (Directive directive : factoryDirectives) {
             if (directive instanceof FactoryDirective) {
-                ((FactoryDirective) directive).applyTo(node, index);
+                Node exampleNode = getExampleNode(ref);
+                ((FactoryDirective) directive).applyTo(node, exampleNode, index);
             } else {
                 directive.applyTo(node);
             }

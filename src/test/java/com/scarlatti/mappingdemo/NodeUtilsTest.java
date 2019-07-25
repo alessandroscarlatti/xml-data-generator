@@ -3,6 +3,7 @@ package com.scarlatti.mappingdemo;
 import com.scarlatti.mappingdemo.directive.Directive;
 import com.scarlatti.mappingdemo.directive.DirectiveFactory;
 import com.scarlatti.mappingdemo.directive.DirectiveUtils;
+import com.scarlatti.mappingdemo.factory.IncrementingValueDirective;
 import com.scarlatti.mappingdemo.factory.NodeFactory;
 import com.scarlatti.mappingdemo.util.NodeUtils;
 import com.scarlatti.mappingdemo.util.NodeWalkerAdapter;
@@ -104,6 +105,32 @@ public class NodeUtilsTest {
         List<Directive> directives = Arrays.asList(
             df.atLeast(1, ref("/Penguin/Pet")),
             df.atLeast(3, ".*/Toy")
+        );
+
+        Node base = cloneNode(example);
+        removePlurals(base);
+
+        directives.forEach(directive -> DirectiveUtils.applyDirective(base, directive));
+
+        System.out.println(serialize(base));
+    }
+
+    @Test
+    public void applyDirectiveToFactory() throws Exception {
+        Node example = new XmlParser().parse(Paths.get("sandbox/penguin.xml").toFile());
+        NodeFactory nodeFactory = NodeFactory.fromExample(example);
+        DirectiveFactory df = new DirectiveFactory(nodeFactory);
+
+        // now add some directives to the factory...
+        List<Directive> factoryDirectives = Arrays.asList(
+            new IncrementingValueDirective()
+        );
+        nodeFactory.setFactoryDirectives(factoryDirectives);
+
+        List<Directive> directives = Arrays.asList(
+            df.atLeast(1, ref("/Penguin/Pet")),
+            df.atLeast(3, ".*/Toy"),
+            df.atLeast(2, ".*/Gadget")
         );
 
         Node base = cloneNode(example);

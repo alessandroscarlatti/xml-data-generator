@@ -11,7 +11,7 @@ public interface FactoryDirective extends Directive {
 
     @Override
     default boolean applyTo(Node node) {
-        return applyTo(node, 0);
+        return applyTo(node, null, 0);
     }
 
     /**
@@ -19,8 +19,9 @@ public interface FactoryDirective extends Directive {
      * The node is understood to be the hypothetical nth node in a
      * group of nodes of identical name.
      * @param node the node to inspect.
+     * @param example
      * @param index the index of this node in a hypothetical grouping of nodes of the same name
      * @return whether or not the directive was applied.
      */
-    boolean applyTo(Node node, int index);
+    boolean applyTo(Node node, Node example, int index);
 }

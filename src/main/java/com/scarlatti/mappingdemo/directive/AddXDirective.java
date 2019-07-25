@@ -31,7 +31,7 @@ public class AddXDirective implements Directive, FactoryDependent {
 
             // so now add them!
             for (int i = 0; i < count; i++) {
-                Node newNode = nodeFactory.getFactoryNode(buildXRef);
+                Node newNode = nodeFactory.getFactoryNode(buildXRef, i);
                 NodeUtils.insertNodeByExample(newNode, node, nodeFactory.getExampleNode(parentRef));
             }
 

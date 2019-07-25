@@ -16,7 +16,7 @@ public class SimpleFactoryDirective implements FactoryDirective {
     }
 
     @Override
-    public boolean applyTo(Node node, int index) {
+    public boolean applyTo(Node node, Node example, int index) {
         return directive.applyTo(node);
     }
 }
