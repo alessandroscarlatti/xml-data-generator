@@ -1,8 +1,8 @@
 package com.scarlatti.mappingdemo;
 
 import com.scarlatti.mappingdemo.directive.AddXDirective;
-import com.scarlatti.mappingdemo.directive.AtLeastXDirective;
 import com.scarlatti.mappingdemo.directive.Directive;
+import com.scarlatti.mappingdemo.directive.DirectiveFactory;
 import com.scarlatti.mappingdemo.directive.DirectiveUtils;
 import com.scarlatti.mappingdemo.factory.NodeFactory;
 import com.scarlatti.mappingdemo.util.NodeUtils;
@@ -16,7 +16,9 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.scarlatti.mappingdemo.util.NodeUtils.*;
+import static com.scarlatti.mappingdemo.util.NodeUtils.cloneNode;
+import static com.scarlatti.mappingdemo.util.NodeUtils.removePlurals;
+import static com.scarlatti.mappingdemo.util.Ref.ref;
 import static groovy.xml.XmlUtil.serialize;
 
 /**
@@ -71,14 +73,16 @@ public class NodeUtilsTest {
     @Test
     public void applyDirective() throws Exception {
         Node example = new XmlParser().parse(Paths.get("sandbox/penguin.xml").toFile());
-        NodeFactory nodeFactory = NodeFactory.fromExample(example);
+        NodeFactory nodeFactory = NodeFactory.fromExample(example, Arrays.asList());
+
+        DirectiveFactory df = new DirectiveFactory(nodeFactory);
 
         List<Directive> directives = Arrays.asList(
-            new AddXDirective(Ref.fromString("/Penguin/Toy"), 3, nodeFactory)
-            , new AddXDirective(Ref.fromString("/Penguin/Pet"), 3, nodeFactory)
-            , new AddXDirective(Ref.fromString("/Penguin/Pet/Toy"), 5, nodeFactory)
-            , new AtLeastXDirective(Ref.fromString("/Penguin/Pet/Toy"), 3, nodeFactory)  // should have no effect
-            ,new AtLeastXDirective(Ref.fromString("/Penguin/Toy/Toy"), 4, nodeFactory)  // should add 1
+            new AddXDirective(ref("/Penguin/Toy"), 3, nodeFactory)
+            , new AddXDirective(ref("/Penguin/Pet"), 3, nodeFactory)
+            , new AddXDirective(ref("/Penguin/Pet/Toy"), 5, nodeFactory)
+            , df.atLeast(3, ref("/Penguin/Pet/Toy"))  // should have no effect
+            , df.atLeast(1, ref("/Penguin/Pet/Toy"))  // should add 1
         );
 
         Node base = cloneNode(example);

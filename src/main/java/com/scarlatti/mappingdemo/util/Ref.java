@@ -60,7 +60,7 @@ public class Ref {
         return tokens.get(tokens.size() - 1);
     }
 
-    public static Ref fromString(String xpath) {
+    public static Ref ref(String xpath) {
         if (xpath.startsWith("/"))
             xpath = xpath.substring(1, xpath.length());
         return new Ref(asList(xpath.split("/")));

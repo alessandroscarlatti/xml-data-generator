@@ -1,5 +1,6 @@
 package com.scarlatti.mappingdemo.directive;
 
+import com.scarlatti.mappingdemo.factory.FactoryDependent;
 import com.scarlatti.mappingdemo.factory.NodeFactory;
 import com.scarlatti.mappingdemo.util.NodeUtils;
 import com.scarlatti.mappingdemo.util.Ref;
@@ -9,18 +10,12 @@ import groovy.util.Node;
  * @author Alessandro Scarlatti
  * @since Monday, 7/22/2019
  */
-public class AddXDirective implements Directive, FactoryDirective {
+public class AddXDirective implements Directive, FactoryDependent {
 
     private Ref buildXRef;
     private Ref parentRef;
     private int count;
     private NodeFactory nodeFactory;
-
-    public AddXDirective(Ref buildXRef, Ref parentRef, int count) {
-        this.buildXRef = buildXRef;
-        this.parentRef = parentRef;
-        this.count = count;
-    }
 
     public AddXDirective(Ref ref, int count, NodeFactory nodeFactory) {
         this.buildXRef = ref;
@@ -47,7 +42,8 @@ public class AddXDirective implements Directive, FactoryDirective {
     }
 
     @Override
-    public void setNodeFactory(NodeFactory nodeFactory) {
+    public AddXDirective setNodeFactory(NodeFactory nodeFactory) {
         this.nodeFactory = nodeFactory;
+        return this;
     }
 }

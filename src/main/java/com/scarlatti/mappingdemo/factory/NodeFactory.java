@@ -45,6 +45,8 @@ public class NodeFactory {
         buildExampleNodes(cloneNode(example), nodeFactory.exampleNodes);
         nodeFactory.factoryDirectives = unmodifiableList(directives);
 
+        // todo set the factory for the directives...
+
         return nodeFactory;
     }
 
@@ -81,6 +83,10 @@ public class NodeFactory {
         });
     }
 
+    public Node getFactoryNode(Ref ref) {
+        return getFactoryNode(ref.getRefString());
+    }
+
     /**
      * Get a new copy of the example node stored in this factory.
      * The new node will be cloned.  All plurals will be removed.
@@ -102,6 +108,10 @@ public class NodeFactory {
         }
 
         return node;
+    }
+
+    public Node getExampleNode(Ref ref) {
+        return cloneNode(exampleNodes.get(ref.getRefString()));
     }
 
     public Node getExampleNode(String path) {
