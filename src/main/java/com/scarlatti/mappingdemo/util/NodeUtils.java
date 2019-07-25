@@ -179,7 +179,7 @@ public class NodeUtils {
             public void walkBeanNode(Node node) {
                 visitChildNodesGroupByName(node, nodes -> {
                     if (nodes.size() > 1)
-                        plurals.add(Ref.fromNode(nodes.get(0)));
+                        plurals.add(Ref.ref(nodes.get(0)));
                 });
 
                 super.walkBeanNode(node);
@@ -198,13 +198,13 @@ public class NodeUtils {
         NodeUtils.walkNode(node, new NodeWalkerAdapter() {
             @Override
             public void walkValueNode(Node node) {
-                if (plurals.contains(Ref.fromNode(node)))
+                if (plurals.contains(Ref.ref(node)))
                     removeNode(node);
             }
 
             @Override
             public void walkBeanNode(Node node) {
-                if (plurals.contains(Ref.fromNode(node)))
+                if (plurals.contains(Ref.ref(node)))
                     removeNode(node);
                 else
                     super.walkBeanNode(node);

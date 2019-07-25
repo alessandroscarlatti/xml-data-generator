@@ -1,6 +1,5 @@
 package com.scarlatti.mappingdemo;
 
-import com.scarlatti.mappingdemo.directive.AddXDirective;
 import com.scarlatti.mappingdemo.directive.Directive;
 import com.scarlatti.mappingdemo.directive.DirectiveFactory;
 import com.scarlatti.mappingdemo.directive.DirectiveUtils;
@@ -35,13 +34,13 @@ public class NodeUtilsTest {
 
             @Override
             public void walkValueNode(Node node) {
-                System.out.println("Found Value @: " + Ref.fromNode(node) + node.text());
+                System.out.println("Found Value @: " + Ref.ref(node) + node.text());
                 super.walkValueNode(node);
             }
 
             @Override
             public void walkBeanNode(Node node) {
-                System.out.println("Found Bean @: " + Ref.fromNode(node));
+                System.out.println("Found Bean @: " + Ref.ref(node));
                 // could transform here...
                 super.walkBeanNode(node);
             }
@@ -73,16 +72,38 @@ public class NodeUtilsTest {
     @Test
     public void applyDirective() throws Exception {
         Node example = new XmlParser().parse(Paths.get("sandbox/penguin.xml").toFile());
-        NodeFactory nodeFactory = NodeFactory.fromExample(example, Arrays.asList());
-
+        NodeFactory nodeFactory = NodeFactory.fromExample(example);
         DirectiveFactory df = new DirectiveFactory(nodeFactory);
 
+        // now add some directives to the factory...
+
         List<Directive> directives = Arrays.asList(
-            new AddXDirective(ref("/Penguin/Toy"), 3, nodeFactory)
-            , new AddXDirective(ref("/Penguin/Pet"), 3, nodeFactory)
-            , new AddXDirective(ref("/Penguin/Pet/Toy"), 5, nodeFactory)
+            df.add(3, ref("/Penguin/Toy"))
+            , df.add(3, ref("/Penguin/Pet"))
+            , df.add(5, ref("/Penguin/Pet/Toy"))
             , df.atLeast(3, ref("/Penguin/Pet/Toy"))  // should have no effect
             , df.atLeast(1, ref("/Penguin/Pet/Toy"))  // should add 1
+        );
+
+        Node base = cloneNode(example);
+        removePlurals(base);
+
+        directives.forEach(directive -> DirectiveUtils.applyDirective(base, directive));
+
+        System.out.println(serialize(base));
+    }
+
+    @Test
+    public void applyDirectiveWithRegex() throws Exception {
+        Node example = new XmlParser().parse(Paths.get("sandbox/penguin.xml").toFile());
+        NodeFactory nodeFactory = NodeFactory.fromExample(example);
+        DirectiveFactory df = new DirectiveFactory(nodeFactory);
+
+        // now add some directives to the factory...
+
+        List<Directive> directives = Arrays.asList(
+            df.atLeast(1, ref("/Penguin/Pet")),
+            df.atLeast(3, ".*/Toy")
         );
 
         Node base = cloneNode(example);

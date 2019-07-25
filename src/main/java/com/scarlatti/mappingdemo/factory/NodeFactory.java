@@ -13,6 +13,9 @@ import static java.util.Collections.unmodifiableList;
 /**
  * @author Alessandro Scarlatti
  * @since Monday, 7/22/2019
+ * <p>
+ * Node factory by example.
+ * The directives will each be applied in order to each new factory object.
  */
 public class NodeFactory {
 
@@ -23,31 +26,24 @@ public class NodeFactory {
     }
 
     /**
-     * Create a NodeFactory.
-     * @param example the example node to use for all factory objects
-     * @return the new factory instance
-     */
-    public static NodeFactory fromExample(Node example) {
-        return fromExample(example, Arrays.asList());
-    }
-
-    /**
-     * Create a node factory by example, with the given directives.
-     * The directives will each be applied in order to each new factory object.
+     * Create a node factory by example.
      *
      * @param example the example node to use for all factory objects
      * @return the new factory instance
      */
-    public static NodeFactory fromExample(Node example, List<Directive> directives) {
+    public static NodeFactory fromExample(Node example) {
         NodeFactory nodeFactory = new NodeFactory();
 
         nodeFactory.exampleNodes = new LinkedHashMap<>();
         buildExampleNodes(cloneNode(example), nodeFactory.exampleNodes);
-        nodeFactory.factoryDirectives = unmodifiableList(directives);
 
         // todo set the factory for the directives...
 
         return nodeFactory;
+    }
+
+    public void setFactoryDirectives(List<Directive> directives) {
+        this.factoryDirectives = unmodifiableList(directives);
     }
 
     /**
@@ -70,12 +66,12 @@ public class NodeFactory {
                     }
 
                     Node factoryNode = cloneNode(last(nodes));
-                    exampleMap.put(Ref.fromNode(last(nodes)).getRefString(), factoryNode);
+                    exampleMap.put(Ref.ref(last(nodes)).getRefString(), factoryNode);
                 });
 
-                if (!exampleMap.containsKey(Ref.fromNode(node).getRefString())) {
+                if (!exampleMap.containsKey(Ref.ref(node).getRefString())) {
                     Node factoryNode = cloneNode(node);
-                    exampleMap.put(Ref.fromNode(node).getRefString(), factoryNode);
+                    exampleMap.put(Ref.ref(node).getRefString(), factoryNode);
                 }
 
                 super.walkBeanNode(node);
@@ -84,7 +80,7 @@ public class NodeFactory {
     }
 
     public Node getFactoryNode(Ref ref) {
-        return getFactoryNode(ref.getRefString());
+        return getFactoryNode(ref, 0);
     }
 
     /**
@@ -92,19 +88,24 @@ public class NodeFactory {
      * The new node will be cloned.  All plurals will be removed.
      * Then any directives in this factory will be applied.
      *
-     * @param path the path of the node to created
+     * @param ref   the path of the node to created
+     * @param index the index of the object within its parent. 0 will return the default object.
      * @return the node constructed
      * @throws NodeNotFoundException if the given path is not found.
      */
-    public Node getFactoryNode(String path) {
-        if (!exampleNodes.containsKey(path))
-            throw new NodeNotFoundException("Factory does not contain an example node for ref " + path, path);
-        Node node = cloneNode(exampleNodes.get(path));
+    public Node getFactoryNode(Ref ref, int index) {
+        if (!exampleNodes.containsKey(ref.getRefString()))
+            throw new NodeNotFoundException("Factory does not contain an example node for ref " + ref, ref);
+        Node node = cloneNode(exampleNodes.get(ref.getRefString()));
         removePlurals(node);
 
         // now apply any directives for this factory
         for (Directive directive : factoryDirectives) {
-            directive.applyTo(node);
+            if (directive instanceof FactoryDirective) {
+                ((FactoryDirective) directive).applyTo(node, index);
+            } else {
+                directive.applyTo(node);
+            }
         }
 
         return node;
@@ -112,9 +113,5 @@ public class NodeFactory {
 
     public Node getExampleNode(Ref ref) {
         return cloneNode(exampleNodes.get(ref.getRefString()));
-    }
-
-    public Node getExampleNode(String path) {
-        return cloneNode(exampleNodes.get(path));
     }
 }

@@ -22,4 +22,8 @@ public class DirectiveFactory {
     public AtLeastXDirective atLeast(int x, String... regexes) {
         return new AtLeastXDirective(x, nodeFactory).useRegexes(regexes);
     }
+
+    public AddXDirective add(int x, Ref ref) {
+        return new AddXDirective(ref, x, nodeFactory);
+    }
 }

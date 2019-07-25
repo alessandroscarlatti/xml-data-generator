@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 
 public class Ref {
     private List<String> tokens;
@@ -66,7 +67,21 @@ public class Ref {
         return new Ref(asList(xpath.split("/")));
     }
 
-    public static Ref fromNode(Node node) {
+    /**
+     * Combine two refs
+     * @param ref the second ref
+     * @return the first ref path followed by the second ref path
+     */
+    public Ref resolve(Ref ref) {
+        List<String> tokens = new ArrayList<>(getTokens());
+        tokens.addAll(ref.getTokens());
+        return new Ref(tokens);
+    }
+
+    public static Ref ref(Node node) {
+        if (node == null)
+            return new Ref(emptyList());
+
         List<String> tokens = new ArrayList<>();
         tokens.add(0, (String) node.name());
         while (node.parent() != null) {

@@ -26,13 +26,13 @@ public class AddXDirective implements Directive, FactoryDependent {
 
     @Override
     public boolean applyTo(Node node) {
-        if (Ref.fromNode(node).equals(parentRef)) {
+        if (Ref.ref(node).equals(parentRef)) {
             // ^^this node should contain the X nodes
 
             // so now add them!
             for (int i = 0; i < count; i++) {
-                Node newNode = nodeFactory.getFactoryNode(buildXRef.getRefString());
-                NodeUtils.insertNodeByExample(newNode, node, nodeFactory.getExampleNode(parentRef.getRefString()));
+                Node newNode = nodeFactory.getFactoryNode(buildXRef);
+                NodeUtils.insertNodeByExample(newNode, node, nodeFactory.getExampleNode(parentRef));
             }
 
             return true;

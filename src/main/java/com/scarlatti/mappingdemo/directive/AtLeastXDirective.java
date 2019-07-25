@@ -1,10 +1,13 @@
 package com.scarlatti.mappingdemo.directive;
 
-import com.scarlatti.mappingdemo.directive.NodeMatcher.CompositeNodeMatcher;
-import com.scarlatti.mappingdemo.directive.NodeMatcher.NeverMatchNodeMatcher;
+import com.scarlatti.mappingdemo.matcher.NodeFinder;
+import com.scarlatti.mappingdemo.matcher.CompositeNodeFinder;
+import com.scarlatti.mappingdemo.matcher.NeverMatchNodeFinder;
 import com.scarlatti.mappingdemo.factory.FactoryDependent;
 import com.scarlatti.mappingdemo.factory.NodeFactory;
 import com.scarlatti.mappingdemo.factory.NodeNotFoundException;
+import com.scarlatti.mappingdemo.matcher.RegexNodeMatcher;
+import com.scarlatti.mappingdemo.matcher.SimpleMatchParentNodeFinder;
 import com.scarlatti.mappingdemo.util.NodeUtils;
 import com.scarlatti.mappingdemo.util.Ref;
 import groovy.util.Node;
@@ -21,7 +24,7 @@ import static com.scarlatti.mappingdemo.util.NodeUtils.getChildren;
  */
 public class AtLeastXDirective implements Directive, FactoryDependent {
 
-    private NodeMatcher nodeMatcher = new NeverMatchNodeMatcher();
+    private NodeFinder nodeFinder = new NeverMatchNodeFinder();
     private int atLeastCount;
     private NodeFactory nodeFactory;
 
@@ -31,27 +34,27 @@ public class AtLeastXDirective implements Directive, FactoryDependent {
     }
 
     public AtLeastXDirective useRefs(Ref... atLeastXRefs) {
-        List<NodeMatcher> matchers = new ArrayList<>();
+        List<NodeFinder> matchers = new ArrayList<>();
         for (Ref ref : atLeastXRefs) {
-            matchers.add(new NodeMatcher.SimpleMatchParentNodeMatcher(ref));
+            matchers.add(new SimpleMatchParentNodeFinder(ref));
         }
-        nodeMatcher = new CompositeNodeMatcher(matchers);
+        nodeFinder = new CompositeNodeFinder(matchers);
         return this;
     }
 
     public AtLeastXDirective useRegexes(String... regexes) {
-        List<NodeMatcher> matchers = new ArrayList<>();
+        List<NodeFinder> matchers = new ArrayList<>();
         for (String regex : regexes) {
-            matchers.add(new NodeMatcher.RegexNodeMatcher(regex));
+            matchers.add(new RegexNodeMatcher(regex, nodeFactory));
         }
-        nodeMatcher = new CompositeNodeMatcher(matchers);
+        nodeFinder = new CompositeNodeFinder(matchers);
         return this;
     }
 
     @Override
     public boolean applyTo(Node node) {
 
-        Set<Ref> matches = nodeMatcher.getMatchingRefs(node);
+        Set<Ref> matches = nodeFinder.getMatchingRefs(node);
         // ^^this node should contain the X nodes
 
         if (matches.size() > 0) {
@@ -74,7 +77,7 @@ public class AtLeastXDirective implements Directive, FactoryDependent {
                 for (int i = 0; i < numToAdd; i++) {
                     try {
                         Node newNode = nodeFactory.getFactoryNode(atLeastXRef);
-                        Ref thisRef = Ref.fromNode(node);
+                        Ref thisRef = Ref.ref(node);
                         NodeUtils.insertNodeByExample(newNode, node, nodeFactory.getExampleNode(thisRef));
                     } catch (NodeNotFoundException e) {
                         e.printStackTrace();
