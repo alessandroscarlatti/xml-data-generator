@@ -177,12 +177,10 @@ public class NodeUtils {
         NodeUtils.walkNode(node, new NodeWalkerAdapter() {
             @Override
             public void walkBeanNode(Node node) {
-                Set<String> childrenNames = NodeUtils.getUniqueChildrenNames(node);
-                for (String childName : childrenNames) {
-                    List<Node> children = getChildren(node, childName);
-                    if (children.size() > 1)
-                        plurals.add(Ref.fromNode(children.get(0)));
-                }
+                visitChildNodesGroupByName(node, nodes -> {
+                    if (nodes.size() > 1)
+                        plurals.add(Ref.fromNode(nodes.get(0)));
+                });
 
                 super.walkBeanNode(node);
             }

@@ -1,6 +1,7 @@
 package com.scarlatti.mappingdemo;
 
-import com.scarlatti.mappingdemo.directive.BuildXDirective;
+import com.scarlatti.mappingdemo.directive.AddXDirective;
+import com.scarlatti.mappingdemo.directive.AtLeastXDirective;
 import com.scarlatti.mappingdemo.directive.Directive;
 import com.scarlatti.mappingdemo.directive.DirectiveUtils;
 import com.scarlatti.mappingdemo.factory.NodeFactory;
@@ -12,6 +13,7 @@ import groovy.util.XmlParser;
 import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.scarlatti.mappingdemo.util.NodeUtils.*;
@@ -71,16 +73,18 @@ public class NodeUtilsTest {
         Node example = new XmlParser().parse(Paths.get("sandbox/penguin.xml").toFile());
         NodeFactory nodeFactory = NodeFactory.fromExample(example);
 
-        Directive directive1 = new BuildXDirective(Ref.fromString("/Penguin/Toy"), 3, nodeFactory);
-        Directive directive2 = new BuildXDirective(Ref.fromString("/Penguin/Pet"), 3, nodeFactory);
-        Directive directive3 = new BuildXDirective(Ref.fromString("/Penguin/Pet/Toy"), 5, nodeFactory);
+        List<Directive> directives = Arrays.asList(
+            new AddXDirective(Ref.fromString("/Penguin/Toy"), 3, nodeFactory)
+            , new AddXDirective(Ref.fromString("/Penguin/Pet"), 3, nodeFactory)
+            , new AddXDirective(Ref.fromString("/Penguin/Pet/Toy"), 5, nodeFactory)
+            , new AtLeastXDirective(Ref.fromString("/Penguin/Pet/Toy"), 3, nodeFactory)  // should have no effect
+            ,new AtLeastXDirective(Ref.fromString("/Penguin/Toy/Toy"), 4, nodeFactory)  // should add 1
+        );
 
         Node base = cloneNode(example);
         removePlurals(base);
 
-        DirectiveUtils.applyDirective(base, directive1);
-        DirectiveUtils.applyDirective(base, directive2);
-        DirectiveUtils.applyDirective(base, directive3);
+        directives.forEach(directive -> DirectiveUtils.applyDirective(base, directive));
 
         System.out.println(serialize(base));
     }

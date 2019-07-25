@@ -10,6 +10,12 @@ import groovy.util.Node;
  */
 public final class DirectiveUtils {
 
+    /**
+     * Apply a directive to the given node.
+     *
+     * @param node      the node to inspect.
+     * @param directive the directive to apply.
+     */
     public static void applyDirective(Node node, Directive directive) {
         NodeUtils.walkNode(node, new NodeWalkerAdapter() {
 

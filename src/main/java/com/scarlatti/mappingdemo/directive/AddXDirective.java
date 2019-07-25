@@ -9,14 +9,20 @@ import groovy.util.Node;
  * @author Alessandro Scarlatti
  * @since Monday, 7/22/2019
  */
-public class BuildXDirective implements Directive {
+public class AddXDirective implements Directive, FactoryDirective {
 
     private Ref buildXRef;
     private Ref parentRef;
     private int count;
     private NodeFactory nodeFactory;
 
-    public BuildXDirective(Ref ref, int count, NodeFactory nodeFactory) {
+    public AddXDirective(Ref buildXRef, Ref parentRef, int count) {
+        this.buildXRef = buildXRef;
+        this.parentRef = parentRef;
+        this.count = count;
+    }
+
+    public AddXDirective(Ref ref, int count, NodeFactory nodeFactory) {
         this.buildXRef = ref;
         this.nodeFactory = nodeFactory;
         this.parentRef = buildXRef.parent();
@@ -38,5 +44,10 @@ public class BuildXDirective implements Directive {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public void setNodeFactory(NodeFactory nodeFactory) {
+        this.nodeFactory = nodeFactory;
     }
 }

@@ -53,6 +53,13 @@ public class Ref {
         return new Ref(tokens.subList(0, tokens.size() - 1));
     }
 
+    public String last() {
+        if (tokens.size() == 0)
+            return null;
+
+        return tokens.get(tokens.size() - 1);
+    }
+
     public static Ref fromString(String xpath) {
         if (xpath.startsWith("/"))
             xpath = xpath.substring(1, xpath.length());
