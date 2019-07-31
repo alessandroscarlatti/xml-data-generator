@@ -28,7 +28,7 @@ public class Ref {
 
     @Override
     public String toString() {
-        return "Ref{" +
+        return "Path{" +
             "tokens=" + tokens +
             '}';
     }
@@ -69,8 +69,8 @@ public class Ref {
 
     /**
      * Combine two refs
-     * @param ref the second ref
-     * @return the first ref path followed by the second ref path
+     * @param ref the second path
+     * @return the first path path followed by the second path path
      */
     public Ref resolve(Ref ref) {
         List<String> tokens = new ArrayList<>(getTokens());

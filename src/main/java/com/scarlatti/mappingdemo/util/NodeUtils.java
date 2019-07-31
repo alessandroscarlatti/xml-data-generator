@@ -79,7 +79,7 @@ public class NodeUtils {
      * @param node the node to walk
      * @param walker the walker to call
      */
-    public static void walkNode(Node node, NodeWalker walker) {
+    public static void walkNode(Node node, NodeVisitor walker) {
         if (isValueNode(node)) {
             walker.walkValueNode(node);
         } else {
@@ -97,7 +97,7 @@ public class NodeUtils {
     public static void visitChildNodesGroupByName(Node node, NodeListVisitor visitor) {
         for (String childName : getUniqueChildrenNames(node)) {
             List<Node> children = getChildren(node, childName);
-            visitor.visitNodeSet(children);
+            visitor.visitElementSet(children);
         }
     }
 

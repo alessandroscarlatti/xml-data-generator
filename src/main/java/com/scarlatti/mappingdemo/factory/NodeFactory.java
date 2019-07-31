@@ -47,7 +47,7 @@ public class NodeFactory {
     }
 
     /**
-     * Build the example nodes.  Each unique Ref path will have an example node.
+     * Build the example nodes.  Each unique Path path will have an example node.
      * The last node from a group of identical tag names will be used as the example.
      *
      * @param node       the base node to use as an example.
@@ -95,7 +95,7 @@ public class NodeFactory {
      */
     public Node getFactoryNode(Ref ref, int index) {
         if (!exampleNodes.containsKey(ref.getRefString()))
-            throw new NodeNotFoundException("Factory does not contain an example node for ref " + ref, ref);
+            throw new NodeNotFoundException("Factory does not contain an example node for path " + ref, ref);
         Node node = cloneNode(exampleNodes.get(ref.getRefString()));
         removePlurals(node);
 

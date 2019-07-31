@@ -25,7 +25,7 @@ import static groovy.xml.XmlUtil.serialize;
  * @author Alessandro Scarlatti
  * @since Monday, 7/22/2019
  */
-public class NodeUtilsTest {
+public class XmlUtilsTest {
 
     @Test
     public void testNodeWalker() throws Exception {
@@ -147,6 +147,63 @@ public class NodeUtilsTest {
         Node clone = cloneNode(xml);
 
         System.out.println(clone);
+    }
+
+    @Test
+    public void testSyntax() throws Exception {
+        // how can I create multiple objects, then modify values in certain objects, by index?
+
+        // can I add an entire xml object?
+        // I suppose so, HOWEVER, it may or may not work out well.
+        // Because for regex searching I am using example objects.
+        // I suppose, though, the purpose is limited modification by example.
+
+        // that would be something like...
+        // df can be a builder
+        node.apply (
+            df.atLeast(1, ref("/Penguin/Pet"));
+
+            df.setValue("/Penguin/Name@value", "Asdf");
+            df.setValue("/Penguin/Pet[0]/Name@value", "Asdf");
+
+
+            df.select("/Penguin/Name@value").replace("asdf(.+)qwe", "$1wer");
+            df.select(".*/Toy").repeat(3);
+            df.select("/Penguin/Pet/Name").remove();
+            df.select("/Penguin/Pet[0]/Name@value").value("qwer");
+            df.select("/Penguin/Pet/Name@value");
+
+            testSuite.test("NoWidgets", df -> {
+                df.replace("/Penguin/Name@value", "asdf(.+)qwe", "$1wer");
+                df.repeat(".*/Toy").repeat(3);
+                df.remove("/Penguin/Pet/Name");
+                df.value("/Penguin/Pet[0]/Name@value", "qwer");
+            });
+
+            testSuite.test("WithWidgets", df -> {
+                df.replace("/Penguin/Name@value", "asdf(.+)qwe", "$1wer");
+                df.repeat(".*/Toy").repeat(3);
+                df.remove("/Penguin/Pet/Name");
+                df.value("/Penguin/Pet[0]/Name@value", "qwer");
+            });
+
+            testSuite.test("AllCheckboxes", df -> {
+                df.replace("/Penguin/Name@value", "asdf(.+)qwe", "$1wer");
+
+                for (int i = 0; i < 99; i++) {
+                    df.value(".*/Question" + i + "@value", "true");
+                }
+            });
+
+
+
+
+
+
+
+            df.atLeast(".*/Toy", 3);
+            df.atLeast(".*/Gadget", 2);
+        );
     }
 
 }
