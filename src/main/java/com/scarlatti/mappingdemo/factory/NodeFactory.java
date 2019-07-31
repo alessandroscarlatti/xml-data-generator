@@ -54,29 +54,29 @@ public class NodeFactory {
      * @param exampleMap the map to add examples to.
      */
     private static void buildExampleNodes(Node node, Map<String, Node> exampleMap) {
-        walkNode(node, new NodeWalkerAdapter() {
-            @Override
-            public void walkBeanNode(Node node) {
-                visitChildNodesGroupByName(node, nodes -> {
-                    if (nodes.size() > 1) {
-                        // only keep the last instance
-                        for (int i = 0; i < nodes.size() - 1; i++) {
-                            removeNode(nodes.get(i));
-                        }
-                    }
-
-                    Node factoryNode = cloneNode(last(nodes));
-                    exampleMap.put(Ref.ref(last(nodes)).getRefString(), factoryNode);
-                });
-
-                if (!exampleMap.containsKey(Ref.ref(node).getRefString())) {
-                    Node factoryNode = cloneNode(node);
-                    exampleMap.put(Ref.ref(node).getRefString(), factoryNode);
-                }
-
-                super.walkBeanNode(node);
-            }
-        });
+//        walkNode(node, new NodeWalkerAdapter() {
+//            @Override
+//            public void walkBeanNode(Node node) {
+//                visitChildNodesGroupByName(node, nodes -> {
+//                    if (nodes.size() > 1) {
+//                        // only keep the last instance
+//                        for (int i = 0; i < nodes.size() - 1; i++) {
+//                            removeNode(nodes.get(i));
+//                        }
+//                    }
+//
+//                    Node factoryNode = cloneNode(last(nodes));
+//                    exampleMap.put(Ref.ref(last(nodes)).getRefString(), factoryNode);
+//                });
+//
+//                if (!exampleMap.containsKey(Ref.ref(node).getRefString())) {
+//                    Node factoryNode = cloneNode(node);
+//                    exampleMap.put(Ref.ref(node).getRefString(), factoryNode);
+//                }
+//
+//                super.walkBeanNode(node);
+//            }
+//        });
     }
 
     public Node getFactoryNode(Ref ref) {

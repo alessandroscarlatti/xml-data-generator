@@ -1,20 +1,71 @@
 package com.scarlatti.xmlmutator;
 
 import com.scarlatti.mappingdemo.util.NodeListVisitor;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
+import org.w3c.dom.ls.DOMImplementationLS;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.beans.XMLEncoder;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.file.Files;
+import java.util.*;
 
 /**
  * @author Alessandro Scarlatti
  * @since Monday, 7/22/2019
  */
 public class XmlUtils {
+
+    public static Element parseXml(java.nio.file.Path file) {
+        try {
+            return parseXml(new String(Files.readAllBytes(file), "utf-8"));
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing xml from file " + file, e);
+        }
+    }
+
+    public static Element parseXml(String xml) {
+        try {
+            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(xml.getBytes()));
+            return document.getDocumentElement();
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing xml.", e);
+        }
+    }
+
+    public static String serialize(Element xml) {
+        try {
+            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            Node node = document.importNode(xml.cloneNode(true), true);
+            document.appendChild(node);
+            return serialize(document);
+        } catch (Exception e) {
+            throw new RuntimeException("Error serializing xml.", e);
+        }
+    }
+
+    public static String serialize(Document document) {
+        try {
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            StreamResult result = new StreamResult(new StringWriter());
+            DOMSource source = new DOMSource(document);
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            transformer.transform(source, result);
+            return result.getWriter().toString();
+        } catch (TransformerException e) {
+            throw new RuntimeException("Error serializing xml.", e);
+        }
+    }
 
     /**
      * Insert a node into another node in the right order, given an example order by an example node.
@@ -23,32 +74,43 @@ public class XmlUtils {
      * @param toNode      the node that will accept the new node
      * @param exampleNode the node that contains the example order of tags
      */
-    public static void insertNodeByExample(Element addNode, Node toNode, Node exampleNode) {
-//        // getFactoryNode the order from the example node
-//        List<String> order = new ArrayList<>();
-//        for (Node child : getChildrenOfName(exampleNode)) {
-//            if (!order.contains((String) child.name())) {
-//                order.add((String) child.name());
-//            }
-//        }
-//
-//        // now we know the order
-//        Map<String, List<Node>> nodes = new LinkedHashMap<>();
-//        for (String key : order) {
-//            nodes.put(key, nodes((NodeList) toNode.get(key)));
-//            if (key.equals(addNode.name())) {
-//                nodes.get(key).add(addNode);
-//            }
-//        }
-//
-//        // now assemble the nodes.
-//        // first remove all nodes, then add them back
-//        toNode.setValue("");
-//        for (String key : nodes.keySet()) {
-//            for (Node node : nodes.get(key)) {
-//                toNode.append(node);
-//            }
-//        }
+    public static void insertNodeByExample(Element addNode, Element toNode, Element exampleNode) {
+        // getFactoryNode the order from the example node
+        List<String> order = new ArrayList<>();
+        for (Node child : getChildren(exampleNode)) {
+            if (!order.contains(child.getLocalName())) {
+                order.add(child.getLocalName());
+            }
+        }
+
+        // now we know the order
+        Map<String, List<Element>> nodes = new LinkedHashMap<>();
+        for (String key : order) {
+            nodes.put(key, getChildrenOfName(toNode, key));
+            if (key.equals(addNode.getLocalName())) {
+                nodes.get(key).add(addNode);
+            }
+        }
+
+        removeAllChildren(toNode);
+
+        // now assemble the nodes.
+        // first remove all nodes, then add them back
+        for (String key : nodes.keySet()) {
+            for (Node node : nodes.get(key)) {
+                toNode.appendChild(node);
+            }
+        }
+    }
+
+    /**
+     * Remove all child elements from this node.
+     * @param element
+     */
+    public static void removeAllChildren(Element element) {
+        for (Element child : getChildren(element)) {
+            removeNode(child);
+        }
     }
 
     /**
@@ -115,7 +177,7 @@ public class XmlUtils {
     public static void visitChildNodesGroupByName(Element node, NodeListVisitor visitor) {
         for (String childName : getUniqueChildrenNames(node)) {
             List<Element> children = getChildrenOfName(node, childName);
-            visitor.visitElementSet(children);
+//            visitor.visitElementSet(children);
         }
     }
 
@@ -227,8 +289,8 @@ public class XmlUtils {
             @Override
             public void visitBeanElement(Element node) {
                 visitChildNodesGroupByName(node, nodes -> {
-                    if (nodes.size() > 1)
-                        plurals.add(Path.path(nodes.get(0)));
+//                    if (nodes.size() > 1)
+//                        plurals.add(Path.path(nodes.get(0)));
                 });
 
                 super.visitBeanElement(node);

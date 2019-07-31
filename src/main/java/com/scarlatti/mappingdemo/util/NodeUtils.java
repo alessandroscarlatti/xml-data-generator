@@ -97,7 +97,7 @@ public class NodeUtils {
     public static void visitChildNodesGroupByName(Node node, NodeListVisitor visitor) {
         for (String childName : getUniqueChildrenNames(node)) {
             List<Node> children = getChildren(node, childName);
-            visitor.visitElementSet(children);
+//            visitor.visitElementSet(children);
         }
     }
 
@@ -178,8 +178,8 @@ public class NodeUtils {
             @Override
             public void walkBeanNode(Node node) {
                 visitChildNodesGroupByName(node, nodes -> {
-                    if (nodes.size() > 1)
-                        plurals.add(Ref.ref(nodes.get(0)));
+//                    if (nodes.size() > 1)
+//                        plurals.add(Ref.ref(nodes.get(0)));
                 });
 
                 super.walkBeanNode(node);

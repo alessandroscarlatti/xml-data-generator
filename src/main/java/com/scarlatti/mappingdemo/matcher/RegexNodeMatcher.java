@@ -35,9 +35,9 @@ public class RegexNodeMatcher implements NodeFinder, FactoryDependent {
 
         Set<Ref> matches = new LinkedHashSet<>();
         NodeUtils.visitChildNodesGroupByName(exampleNode, nodes -> {
-            Ref ref = ref(node.parent()).resolve(ref(nodes.get(0)));
-            if (Pattern.matches(regex, ref.getRefString()))
-                matches.add(ref);
+//            Ref ref = ref(node.parent()).resolve(ref(nodes.get(0)));
+//            if (Pattern.matches(regex, ref.getRefString()))
+//                matches.add(ref);
         });
 
         return matches;

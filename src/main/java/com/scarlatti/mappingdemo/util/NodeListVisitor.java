@@ -1,6 +1,7 @@
 package com.scarlatti.mappingdemo.util;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -9,5 +10,5 @@ import java.util.List;
  * @since Wednesday, 7/24/2019
  */
 public interface NodeListVisitor {
-    void visitElementSet(List<Element> nodes);
+    void visitElementSet(List<Node> nodes);
 }
