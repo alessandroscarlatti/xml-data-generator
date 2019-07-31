@@ -1,4 +1,4 @@
-package com.scarlatti.xmlmutator;
+package com.scarlatti.xmlmutator.util;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -12,6 +12,9 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.nio.file.Files;
@@ -79,6 +82,16 @@ public class XmlUtils {
                 child.setTextContent(child.getTextContent().trim());
             }
             trimWhitespace(child);
+        }
+    }
+
+    public static List<Node> getNodesByXpath(Document xml, String xpath) {
+        try {
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            NodeList nodeList = (NodeList) xPath.compile(xpath).evaluate(xml, XPathConstants.NODESET);
+            return toList(nodeList);
+        } catch (Exception e) {
+            throw new RuntimeException("Error evaluating xpath " + xpath, e);
         }
     }
 

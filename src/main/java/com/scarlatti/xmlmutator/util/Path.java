@@ -1,4 +1,4 @@
-package com.scarlatti.xmlmutator;
+package com.scarlatti.xmlmutator.util;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.scarlatti.xmlmutator.XmlUtils.getIndex;
+import static com.scarlatti.xmlmutator.util.XmlUtils.getIndex;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 

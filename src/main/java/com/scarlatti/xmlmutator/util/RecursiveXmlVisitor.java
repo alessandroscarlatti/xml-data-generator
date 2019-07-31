@@ -1,11 +1,11 @@
-package com.scarlatti.xmlmutator;
+package com.scarlatti.xmlmutator.util;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static com.scarlatti.xmlmutator.XmlUtils.getChildren;
-import static com.scarlatti.xmlmutator.XmlUtils.walkNode;
+import static com.scarlatti.xmlmutator.util.XmlUtils.getChildren;
+import static com.scarlatti.xmlmutator.util.XmlUtils.walkNode;
 
 /**
  * @author Alessandro Scarlatti

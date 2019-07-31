@@ -13,7 +13,7 @@
             </Gadget>
         </Toy>
     </Pet>
-    <SomeField1 />
+    <SomeField1 value="stuff"/>
     <SomeField2 />
     <SomeField3 />
     <Toy />
