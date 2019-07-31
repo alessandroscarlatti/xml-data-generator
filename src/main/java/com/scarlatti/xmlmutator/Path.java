@@ -1,5 +1,6 @@
 package com.scarlatti.xmlmutator;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.util.ArrayList;
@@ -34,9 +35,7 @@ public class Path {
 
     @Override
     public String toString() {
-        return "Path{" +
-            "tokens=" + tokens +
-            '}';
+        return getRefString();
     }
 
     @Override
@@ -110,9 +109,9 @@ public class Path {
             return new Path(emptyList());
 
         List<Token> tokens = new ArrayList<>();
-        tokens.add(getIndex(node), new Token(node.getLocalName()));
-        while (node.getParentNode() != null) {
-            tokens.add(getIndex(node), new Token(node.getParentNode().getLocalName()));
+        tokens.add(0, new Token(node.getNodeName(), getIndex(node)));
+        while (node.getParentNode() != null && !(node.getParentNode() instanceof Document)) {
+            tokens.add(0, new Token(node.getParentNode().getNodeName(), getIndex(node)));
             node = (Element) node.getParentNode();
         }
 

@@ -1,23 +1,22 @@
 package com.scarlatti.xmlmutator;
 
-import com.scarlatti.mappingdemo.util.NodeListVisitor;
-import org.w3c.dom.*;
-import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.beans.XMLEncoder;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * @author Alessandro Scarlatti
@@ -35,7 +34,8 @@ public class XmlUtils {
 
     public static Element parseXml(String xml) {
         try {
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(xml.getBytes()));
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            Document document = factory.newDocumentBuilder().parse(new ByteArrayInputStream(xml.getBytes()));
             return document.getDocumentElement();
         } catch (Exception e) {
             throw new RuntimeException("Error parsing xml.", e);
@@ -44,7 +44,9 @@ public class XmlUtils {
 
     public static String serialize(Element xml) {
         try {
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setIgnoringElementContentWhitespace(true);
+            Document document = factory.newDocumentBuilder().newDocument();
             Node node = document.importNode(xml.cloneNode(true), true);
             document.appendChild(node);
             return serialize(document);
@@ -55,6 +57,7 @@ public class XmlUtils {
 
     public static String serialize(Document document) {
         try {
+            trimWhitespace(document);
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             StreamResult result = new StreamResult(new StringWriter());
             DOMSource source = new DOMSource(document);
@@ -64,6 +67,18 @@ public class XmlUtils {
             return result.getWriter().toString();
         } catch (TransformerException e) {
             throw new RuntimeException("Error serializing xml.", e);
+        }
+    }
+
+    public static void trimWhitespace(Node node)
+    {
+        NodeList children = node.getChildNodes();
+        for(int i = 0; i < children.getLength(); ++i) {
+            Node child = children.item(i);
+            if(child.getNodeType() == Node.TEXT_NODE) {
+                child.setTextContent(child.getTextContent().trim());
+            }
+            trimWhitespace(child);
         }
     }
 
@@ -78,8 +93,8 @@ public class XmlUtils {
         // getFactoryNode the order from the example node
         List<String> order = new ArrayList<>();
         for (Node child : getChildren(exampleNode)) {
-            if (!order.contains(child.getLocalName())) {
-                order.add(child.getLocalName());
+            if (!order.contains(child.getNodeName())) {
+                order.add(child.getNodeName());
             }
         }
 
@@ -87,7 +102,7 @@ public class XmlUtils {
         Map<String, List<Element>> nodes = new LinkedHashMap<>();
         for (String key : order) {
             nodes.put(key, getChildrenOfName(toNode, key));
-            if (key.equals(addNode.getLocalName())) {
+            if (key.equals(addNode.getNodeName())) {
                 nodes.get(key).add(addNode);
             }
         }
@@ -174,10 +189,10 @@ public class XmlUtils {
      * @param node    the node to query
      * @param visitor the visitor to callback for each group
      */
-    public static void visitChildNodesGroupByName(Element node, NodeListVisitor visitor) {
+    public static void visitChildNodesGroupByName(Element node, Consumer<List<Element>> visitor) {
         for (String childName : getUniqueChildrenNames(node)) {
             List<Element> children = getChildrenOfName(node, childName);
-//            visitor.visitElementSet(children);
+            visitor.accept(children);
         }
     }
 
@@ -200,6 +215,9 @@ public class XmlUtils {
      */
     public static int getIndex(Element element) {
         if (element.getParentNode() == null)
+            return -1;
+
+        if (element.getParentNode() instanceof Document)
             return -1;
 
         int i = 0;
@@ -242,7 +260,7 @@ public class XmlUtils {
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node child = nodeList.item(i);
-            if (child instanceof Element && child.getLocalName().equals(name)) {
+            if (child instanceof Element && child.getNodeName().equals(name)) {
                 nodes.add(((Element) child));
             }
         }
@@ -261,7 +279,7 @@ public class XmlUtils {
         Set<String> names = new LinkedHashSet<>();
         List<Element> nodes = getChildren(node);
         for (Element child : nodes) {
-            names.add(child.getLocalName());
+            names.add(child.getNodeName());
         }
         return names;
     }
@@ -289,8 +307,8 @@ public class XmlUtils {
             @Override
             public void visitBeanElement(Element node) {
                 visitChildNodesGroupByName(node, nodes -> {
-//                    if (nodes.size() > 1)
-//                        plurals.add(Path.path(nodes.get(0)));
+                    if (nodes.size() > 1)
+                        plurals.add(Path.path(nodes.get(0)));
                 });
 
                 super.visitBeanElement(node);
@@ -305,18 +323,22 @@ public class XmlUtils {
      * @param node the node in which to remove duplicate child tags.
      */
     public static void removePlurals(Element node) {
-        List<Path> plurals = XmlUtils.getPlurals(node);
+        List<Path> pluralPaths = XmlUtils.getPlurals(node);
+        List<String> plurals = new ArrayList<>();
+        for (Path path : pluralPaths) {
+            plurals.add(path.getRefString());
+        }
 
         XmlUtils.walkNode(node, new RecursiveXmlVisitor() {
             @Override
             public void visitValueElement(Element node) {
-                if (plurals.contains(Path.path(node)))
+                if (plurals.contains(Path.path(node).getRefString()))
                     removeNode(node);
             }
 
             @Override
             public void visitBeanElement(Element node) {
-                if (plurals.contains(Path.path(node)))
+                if (plurals.contains(Path.path(node).getRefString()))
                     removeNode(node);
                 else
                     super.visitBeanElement(node);
